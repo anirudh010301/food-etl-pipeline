@@ -1,0 +1,120 @@
+version: 2
+
+models:
+  - name: dim_date
+    description: "Date dimension covering 2022-2025"
+    columns:
+      - name: date_key
+        description: "Surrogate key in YYYYMMDD format"
+        tests:
+          - not_null
+          - unique
+      - name: full_date
+        tests:
+          - not_null
+          - unique
+      - name: year
+        tests:
+          - not_null
+          - accepted_values:
+              values: [2022, 2023, 2024, 2025]
+
+  - name: dim_restaurant
+    description: "Restaurant branch dimension with SCD Type 2 fields"
+    columns:
+      - name: restaurant_key
+        description: "Surrogate key"
+        tests:
+          - not_null
+          - unique
+      - name: branch_id
+        tests:
+          - not_null
+          - unique
+      - name: is_current
+        tests:
+          - not_null
+          - accepted_values:
+              values: [0, 1]
+
+  - name: dim_employee
+    description: "Employee dimension with SCD Type 2 fields"
+    columns:
+      - name: employee_key
+        description: "Surrogate key"
+        tests:
+          - not_null
+          - unique
+      - name: employee_id
+        tests:
+          - not_null
+          - unique
+      - name: is_current
+        tests:
+          - not_null
+          - accepted_values:
+              values: [0, 1]
+
+  - name: dim_menu_item
+    description: "Menu item/product dimension"
+    columns:
+      - name: menu_item_key
+        description: "Surrogate key"
+        tests:
+          - not_null
+          - unique
+      - name: product_id
+        tests:
+          - not_null
+          - unique
+
+  - name: fact_orders
+    description: "Orders fact table — one row per order"
+    columns:
+      - name: order_key
+        description: "Surrogate key"
+        tests:
+          - not_null
+          - unique
+      - name: date_key
+        tests:
+          - not_null
+      - name: restaurant_key
+        tests:
+          - not_null
+      - name: employee_key
+        tests:
+          - not_null
+      - name: menu_item_key
+        tests:
+          - not_null
+      - name: quantity
+        tests:
+          - not_null
+      - name: subtotal
+        tests:
+          - not_null
+
+  - name: fact_sales
+    description: "Sales fact table — one row per sale transaction"
+    columns:
+      - name: sale_key
+        description: "Surrogate key"
+        tests:
+          - not_null
+          - unique
+      - name: date_key
+        tests:
+          - not_null
+      - name: restaurant_key
+        tests:
+          - not_null
+      - name: menu_item_key
+        tests:
+          - not_null
+      - name: gross_revenue
+        tests:
+          - not_null
+      - name: net_revenue
+        tests:
+          - not_null
