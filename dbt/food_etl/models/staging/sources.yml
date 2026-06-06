@@ -1,0 +1,48 @@
+version: 2
+
+sources:
+  - name: staging
+    database: food_etl
+    schema: food_etl
+    tables:
+      - name: stg_orders
+        description: "Raw orders data loaded from Kaggle Excel file"
+        columns:
+          - name: order_id
+            tests:
+              - not_null
+              - unique
+          - name: branch_id
+            tests:
+              - not_null
+          - name: product_id
+            tests:
+              - not_null
+          - name: employee_id
+            tests:
+              - not_null
+
+      - name: stg_sales
+        description: "Raw sales data loaded from Kaggle Excel file"
+        columns:
+          - name: sale_id
+            tests:
+              - not_null
+              - unique
+          - name: order_id
+            tests:
+              - not_null
+          - name: branch_id
+            tests:
+              - not_null
+
+      - name: stg_employees
+        description: "Raw employees data loaded from Kaggle Excel file"
+        columns:
+          - name: employee_id
+            tests:
+              - not_null
+              - unique
+          - name: branch_id
+            tests:
+              - not_null

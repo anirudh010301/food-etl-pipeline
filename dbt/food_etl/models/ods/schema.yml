@@ -1,0 +1,81 @@
+version: 2
+
+models:
+  - name: ods_orders
+    description: "Cleaned and standardized orders data with English translations"
+    columns:
+      - name: order_id
+        tests:
+          - not_null
+          - unique
+      - name: order_date
+        tests:
+          - not_null
+      - name: branch_id
+        tests:
+          - not_null
+      - name: product_id
+        tests:
+          - not_null
+      - name: employee_id
+        tests:
+          - not_null
+      - name: order_status
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["Delivered", "Cancelled", "In Preparation", "On The Way"]
+      - name: payment_method
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["Credit Card", "Debit Card", "Mobile Payment", "Cash"]
+
+  - name: ods_sales
+    description: "Cleaned and standardized sales data with English translations"
+    columns:
+      - name: sale_id
+        tests:
+          - not_null
+          - unique
+      - name: order_id
+        tests:
+          - not_null
+      - name: branch_id
+        tests:
+          - not_null
+      - name: payment_method
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["Credit Card", "Debit Card", "Mobile Payment", "Cash"]
+
+  - name: ods_employees
+    description: "Cleaned and standardized employees data with English translations"
+    columns:
+      - name: employee_id
+        tests:
+          - not_null
+          - unique
+      - name: full_name
+        tests:
+          - not_null
+      - name: role_name
+        tests:
+          - not_null
+          - accepted_values:
+              values:
+                [
+                  "Cashier",
+                  "Delivery Driver",
+                  "Customer Service",
+                  "Shift Supervisor",
+                  "Branch Manager",
+                  "Cook",
+                ]
+      - name: shift_name
+        tests:
+          - not_null
+          - accepted_values:
+              values:
+                ["Morning (8-16h)", "Afternoon (14-22h)", "Night (18-02h)"]

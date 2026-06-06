@@ -1,0 +1,36 @@
+name: "food_etl"
+version: "1.0.0"
+config-version: 2
+
+profile: "food_etl"
+
+model-paths: ["models"]
+analysis-paths: ["analyses"]
+test-paths: ["tests"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+snapshot-paths: ["snapshots"]
+
+target-path: "target"
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+models:
+  food_etl:
+    staging:
+      +materialized: view
+      +schema: staging
+    ods:
+      +materialized: table
+      +schema: ods
+    dwh:
+      dimensions:
+        +materialized: table
+        +schema: dwh
+      facts:
+        +materialized: table
+        +schema: dwh
+    marts:
+      +materialized: table
+      +schema: marts
