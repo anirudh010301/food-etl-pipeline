@@ -1,0 +1,16 @@
+# Data extraction
+kaggle==1.6.17
+
+# Data processing
+pandas==2.2.2
+numpy==1.26.4
+
+# Database connection
+sqlalchemy==2.0.30
+pymysql==1.1.0
+
+# Environment variables
+python-dotenv==1.0.1
+
+# Utilities
+loguru==0.7.2

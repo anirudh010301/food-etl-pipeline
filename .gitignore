@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+venv/
+.env
+
+# Data files
+data/raw/
+data/processed/
+*.csv
+
+# Mac
+.DS_Store
+
+# dbt
+dbt/target/
+dbt/logs/
+dbt/.user.yml
+
+# Airflow
+airflow/logs/
+airflow/*.db
+airflow/*.cfg
+
+# IDE
+.vscode/
+.idea/
+
+# Logs
+*.log
+extract/logs/
