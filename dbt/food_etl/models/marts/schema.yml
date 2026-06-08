@@ -1,0 +1,73 @@
+version: 2
+
+models:
+  - name: mart_sales
+    description: "Sales analysis mart — monthly revenue, running totals, MoM growth, branch rankings"
+    columns:
+      - name: branch_name
+        tests:
+          - not_null
+      - name: year
+        tests:
+          - not_null
+      - name: month_number
+        tests:
+          - not_null
+      - name: monthly_net_revenue
+        tests:
+          - not_null
+      - name: running_total_revenue
+        tests:
+          - not_null
+      - name: branch_revenue_rank
+        tests:
+          - not_null
+
+  - name: mart_operations
+    description: "Operations analysis mart — daily orders, moving averages, branch performance"
+    columns:
+      - name: branch_name
+        tests:
+          - not_null
+      - name: full_date
+        tests:
+          - not_null
+      - name: daily_order_count
+        tests:
+          - not_null
+      - name: orders_7day_moving_avg
+        tests:
+          - not_null
+      - name: running_total_orders
+        tests:
+          - not_null
+
+  - name: mart_hr
+    description: "HR analysis mart — employee performance, rankings, quartiles"
+    columns:
+      - name: employee_id
+        tests:
+          - not_null
+      - name: full_name
+        tests:
+          - not_null
+      - name: branch_name
+        tests:
+          - not_null
+      - name: total_orders_handled
+        tests:
+          - not_null
+      - name: revenue_rank_in_branch
+        tests:
+          - not_null
+      - name: performance_quartile_label
+        tests:
+          - not_null
+          - accepted_values:
+              values:
+                [
+                  "Top 25%",
+                  "Upper Middle 25%",
+                  "Lower Middle 25%",
+                  "Bottom 25%",
+                ]

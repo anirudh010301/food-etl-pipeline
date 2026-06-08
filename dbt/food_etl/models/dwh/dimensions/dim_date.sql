@@ -33,7 +33,7 @@ with date_spine as (
     where '2022-01-01' + interval (a.a + (10 * b.a) + (100 * c.a) + (1000 * d.a)) day <= '2025-12-31'
 ),
 
-final as (
+date_final as (
     select
         -- --------------------------------------------------------
         -- Surrogate Key
@@ -98,4 +98,4 @@ final as (
     from date_spine
 )
 
-select * from final
+select * from date_final
