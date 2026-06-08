@@ -1,7 +1,54 @@
 version: "3.8"
 
+# ============================================================
+# Food ETL Pipeline — Docker Compose
+# Services:
+#   1. food_etl_mysql     — MySQL database (all ETL layers)
+#   2. food_etl_postgres  — PostgreSQL (Airflow backend only)
+#   3. airflow_init       — Sets up Airflow DB + admin user once
+#   4. airflow_webserver  — Airflow web UI
+#   5. airflow_scheduler  — Airflow task scheduler
+# ============================================================
+
+x-airflow-common:
+  &airflow-common # Use our custom Airflow image with dbt-mysql installed
+  build:
+    context: ..
+    dockerfile: docker/Dockerfile.airflow
+  environment:
+    # Use PostgreSQL as backend — NOT SQLite
+    AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow_pass@food_etl_postgres:5432/airflow_db
+    # Use LocalExecutor — NOT SequentialExecutor
+    # LocalExecutor allows parallel task execution
+    AIRFLOW__CORE__EXECUTOR: LocalExecutor
+    # Security keys — required to prevent scheduler crashes
+    AIRFLOW__CORE__FERNET_KEY: "ZmDfcTF7_60GrrY167zsiPd67pEvs0aGOv2oasOM1Pg="
+    AIRFLOW__WEBSERVER__SECRET_KEY: "food_etl_secret_key_2024"
+    # Disable example DAGs — keeps UI clean
+    AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+    # Point to our DAGs folder
+    AIRFLOW__CORE__DAGS_FOLDER: /opt/airflow/dags
+    # Health check threshold — prevents false scheduler warnings
+    AIRFLOW__SCHEDULER__SCHEDULER_HEALTH_CHECK_THRESHOLD: 120
+    # dbt project path inside container
+    DBT_PROJECT_DIR: /opt/airflow/dbt/food_etl
+  volumes:
+    # Mount our DAGs folder into Airflow
+    - ../airflow/dags:/opt/airflow/dags
+    # Mount dbt project into Airflow
+    - ../dbt:/opt/airflow/dbt
+    # Mount logs folder
+    - ../airflow/logs:/opt/airflow/logs
+  depends_on:
+    food_etl_postgres:
+      condition: service_healthy
+
 services:
-  mysql:
+  # ============================================================
+  # Service 1: MySQL — main ETL database
+  # Already running — keeping same config
+  # ============================================================
+  food_etl_mysql:
     image: mysql:8.0
     container_name: food_etl_mysql
     restart: always
@@ -18,5 +65,76 @@ services:
       timeout: 5s
       retries: 5
 
+  # ============================================================
+  # Service 2: PostgreSQL — Airflow backend database only
+  # Port 5434 — avoids conflict with Projects 1 and 2
+  # ============================================================
+  food_etl_postgres:
+    image: postgres:15
+    container_name: food_etl_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: airflow
+      POSTGRES_PASSWORD: airflow_pass
+      POSTGRES_DB: airflow_db
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "airflow"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ============================================================
+  # Service 3: Airflow Init
+  # Runs once — sets up Airflow DB and creates admin user
+  # Exits after setup is complete
+  # ============================================================
+  airflow_init:
+    <<: *airflow-common
+    container_name: food_etl_airflow_init
+    command: bash -c "airflow db migrate && airflow users create --username admin --firstname admin --lastname admin --role Admin --email admin@example.com --password admin"
+    restart: no
+
+  # ============================================================
+  # Service 4: Airflow Webserver
+  # Web UI for monitoring DAGs and task runs
+  # Port 8082 — avoids conflict with Projects 1 and 2
+  # ============================================================
+  airflow_webserver:
+    <<: *airflow-common
+    container_name: food_etl_airflow_webserver
+    command: airflow webserver
+    ports:
+      - "8082:8080"
+    restart: always
+    mem_limit: 4g
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    depends_on:
+      airflow_init:
+        condition: service_completed_successfully
+
+  # ============================================================
+  # Service 5: Airflow Scheduler
+  # Triggers DAGs on schedule and monitors task execution
+  # ============================================================
+  airflow_scheduler:
+    <<: *airflow-common
+    container_name: food_etl_airflow_scheduler
+    command: airflow scheduler
+    restart: always
+    mem_limit: 4g
+    depends_on:
+      airflow_init:
+        condition: service_completed_successfully
+
 volumes:
   mysql_data:
+  postgres_data:
