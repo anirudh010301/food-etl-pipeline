@@ -9,17 +9,19 @@ venv/
 data/raw/
 data/processed/
 *.csv
+*.xlsx
 
 # Mac
 .DS_Store
 
 # dbt
-dbt/target/
-dbt/logs/
-dbt/.user.yml
+dbt/food_etl/target/
+dbt/food_etl/logs/
+dbt/food_etl/.user.yml
 
 # Airflow
-airflow/logs/
+airflow/logs/*
+!airflow/logs/.gitkeep
 airflow/*.db
 airflow/*.cfg
 
