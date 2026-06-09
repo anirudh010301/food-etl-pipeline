@@ -135,6 +135,27 @@ services:
       airflow_init:
         condition: service_completed_successfully
 
+  # ============================================================
+  # Service 6: Metabase — Business Intelligence Dashboard
+  # Connects directly to MySQL data marts
+  # Access at: http://localhost:3000
+  # ============================================================
+  metabase:
+    image: metabase/metabase:v0.46.8
+    platform: linux/amd64
+    container_name: food_etl_metabase
+    restart: always
+    ports:
+      - "3000:3000"
+    volumes:
+      - metabase_data:/metabase-data
+    environment:
+      MB_DB_FILE: /metabase-data/metabase.db
+    depends_on:
+      food_etl_mysql:
+        condition: service_healthy
+
 volumes:
   mysql_data:
   postgres_data:
+  metabase_data:

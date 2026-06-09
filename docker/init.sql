@@ -5,3 +5,6 @@
 -- ============================================================
 
 CREATE DATABASE airflow_db;
+
+-- Creates Metabase database
+CREATE DATABASE metabase_db;
